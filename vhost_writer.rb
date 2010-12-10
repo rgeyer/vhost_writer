@@ -64,12 +64,23 @@ class App
           this_vhost["aliases"] = aliases
         end
 
+        puts "Install wordpress on this vhost? yes/no"
+        install_wp = (stdin_sanitize(gets) == "yes")
+        this_vhost["install_wp"] = install_wp
+        if(install_wp)
+          puts "Provide the hostname of the database server. [localhost]"
+          dbhost = stdin_sanitize(gets)
+          this_vhost["db_hostname"] = dbhost == "" ? "localhost" : dbhost 
+          puts "Provide the desired password for the database"
+          this_vhost["db_pass"] = stdin_sanitize(gets)
+        end
+
         @@vhost_hash_array += [this_vhost]
         puts "Added #{this_vhost.inspect}..."
         file_menu_choices
       when "exit"
-        File.open(@@file_path, "w") do |file|
-          file.write(@@vhost_hash_array.to_yaml, File::CREAT|File::TRUNC|File::RDWR, 0644)
+        File.open(@@file_path, File::CREAT|File::TRUNC|File::RDWR, 0644) do |file|
+          file.write(@@vhost_hash_array.to_yaml)
           file.close()
         end
     end
